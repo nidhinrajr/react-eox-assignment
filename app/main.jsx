@@ -53,7 +53,7 @@ const App = () => {
   };
 
   return stateData.length === 0 ? (
-    <span>Loading..</span>
+    <span class="k-icon k-i-loading"></span>
   ) : (
     <Grid
       data={stateData}
