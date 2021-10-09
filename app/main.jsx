@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom';
 import { Grid, GridColumn as Column } from '@progress/kendo-react-grid';
 import axios from 'axios';
 import { translateData } from './translateData.js';
-import products from './products.json';
 
 const DetailComponent = (props) => {
   const dataItem = props.dataItem.cities;
@@ -22,8 +21,8 @@ const DetailComponent = (props) => {
           height: '400px',
         }}
       >
-        <Column field="city" title="City" width="300px" />
-        <Column field="zip" title="Zip" width="300px" />
+        <Column field="city" title="City" />
+        <Column field="zip" title="Zip" />
       </Grid>
     </section>
   );
@@ -65,7 +64,7 @@ const App = () => {
       expandField="expanded"
       onExpandChange={expandChange}
     >
-      <Column field="name" title="State" width="300px" />
+      <Column field="name" title="State" />
     </Grid>
   );
 };
