@@ -1,41 +1,73 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 import { Grid, GridColumn as Column } from '@progress/kendo-react-grid';
+import axios from 'axios';
+import { translateData } from './translateData.js';
 import products from './products.json';
 
-const DetailComponent = props => {
-  const dataItem = props.dataItem;
-  return <section>
-        <p><strong>In Stock:</strong> {dataItem.UnitsInStock} units</p>
-        <p><strong>On Order:</strong> {dataItem.UnitsOnOrder} units</p>
-        <p><strong>Reorder Level:</strong> {dataItem.ReorderLevel} units</p>
-        <p><strong>Discontinued:</strong> {dataItem.Discontinued}</p>
-        <p><strong>Category:</strong> {dataItem.Category.CategoryName} - {dataItem.Category.Description}</p>
-      </section>;
+const DetailComponent = (props) => {
+  const dataItem = props.dataItem.cities;
+  const detailsArray = [];
+  for (const key in dataItem) {
+    detailsArray.push({
+      city: key.toString(),
+      zip: dataItem[key].toString(),
+    });
+  }
+  return (
+    <section>
+      <Grid
+        data={detailsArray}
+        style={{
+          height: '400px',
+        }}
+      >
+        <Column field="city" title="City" width="300px" />
+        <Column field="zip" title="Zip" width="300px" />
+      </Grid>
+    </section>
+  );
 };
 
 const App = () => {
-  const [data, setData] = React.useState(products);
+  const [stateData, setStatedata] = useState([]);
 
-  const expandChange = event => {
-    let newData = data.map(item => {
-      if (item.ProductID === event.dataItem.ProductID) {
+  useEffect(() => {
+    axios('https://api.npoint.io/2c71ded6354de7428006')
+      .then((res) => {
+        const resData = translateData(res.data);
+        console.log(resData);
+        setStatedata(resData);
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
+  const expandChange = (event) => {
+    let newData = stateData.map((item) => {
+      if (item.name === event.dataItem.name) {
         item.expanded = !event.dataItem.expanded;
       }
 
       return item;
     });
-    setData(newData);
+    setStatedata(newData);
   };
 
-  return <Grid data={data} detail={DetailComponent} style={{
-    height: '400px'
-  }} expandField="expanded" onExpandChange={expandChange}>
-        <Column field="ProductName" title="Product" width="300px" />
-        <Column field="ProductID" title="ID" width="50px" />
-        <Column field="UnitPrice" title="Unit Price" width="100px" />
-        <Column field="QuantityPerUnit" title="Qty Per Unit" />
-      </Grid>;
+  return stateData.length === 0 ? (
+    <span>Loading..</span>
+  ) : (
+    <Grid
+      data={stateData}
+      detail={DetailComponent}
+      style={{
+        height: '400px',
+      }}
+      expandField="expanded"
+      onExpandChange={expandChange}
+    >
+      <Column field="name" title="State" width="300px" />
+    </Grid>
+  );
 };
 
 ReactDOM.render(<App />, document.querySelector('my-app'));
